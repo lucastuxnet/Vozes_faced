@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block title %}Repositório Acessível – Dissertações e Teses em Áudio{% endblock %}
+
+{% block content %}
+<section class="hero" aria-labelledby="hero-heading">
+  <div class="hero-inner">
+    <h2 id="hero-heading">Pesquise e ouça os resumos</h2>
+    <p class="hero-desc">Acesse o áudio do resumo de dissertações e teses do PPGED/UFU e PPGCO/UFU. Use a busca para encontrar o trabalho que deseja estudar.</p>
+    <form class="search-form" role="search" action="{{ url_for('index') }}" method="get" aria-label="Buscar dissertações e teses">
+      <label for="search-input" class="sr-only">Buscar por título, autor ou ano</label>
+      <div class="search-row">
+        <input id="search-input" type="search" name="q" value="{{ query }}"
+               placeholder="Buscar por título, autor, ano ou palavras do resumo…"
+               class="search-input" autocomplete="off">
+        <button type="submit" class="btn btn-primary search-btn" aria-label="Realizar busca">
+          <svg aria-hidden="true" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          Buscar
+        </button>
+      </div>
+      <div class="filter-row" role="group" aria-label="Filtrar por tipo">
+        <a href="{{ url_for('index', q=query, tipo='todos') }}"
+           class="filter-tag {% if tipo == 'todos' %}active{% endif %}">Todos</a>
+        <a href="{{ url_for('index', q=query, tipo='dissertacoes') }}"
+           class="filter-tag {% if tipo == 'dissertacoes' %}active{% endif %}">Dissertações</a>
+        <a href="{{ url_for('index', q=query, tipo='teses') }}"
+           class="filter-tag {% if tipo == 'teses' %}active{% endif %}">Teses</a>
+      </div>
+    </form>
+  </div>
+</section>
+
+<div class="results-area">
+
+  {% set show_dis = tipo in ('todos', 'dissertacoes') %}
+  {% set show_tes = tipo in ('todos', 'teses') %}
+
+  {% if show_dis %}
+  <section class="collection-section" aria-labelledby="dis-heading">
+    <div class="section-header">
+      <h2 id="dis-heading" class="section-title">
+        <span class="section-badge dis-badge">D</span>
+        Dissertações
+        <span class="count-badge">{{ dissertacoes|length }}</span>
+      </h2>
+      <a href="https://repositorio.ufu.br/handle/123456789/5061"
+         target="_blank" rel="noopener noreferrer"
+         class="repo-link" aria-label="Acessar repositório completo de dissertações (abre em nova aba)">
+        Repositório UFU ↗
+      </a>
+    </div>
+
+    {% if dissertacoes %}
+    <ul class="cards-list" role="list" aria-label="Lista de dissertações">
+      {% for item in dissertacoes %}
+      <li class="card" id="dis-{{ item.id }}">
+        <div class="card-header">
+          <span class="card-tipo dis">Dissertação</span>
+          {% if item.ano %}<span class="card-ano">{{ item.ano }}</span>{% endif %}
+        </div>
+        <h3 class="card-title">{{ item.titulo }}</h3>
+        <p class="card-autor">{{ item.autor }}</p>
+        {% if item.resumo %}
+        <details class="card-resumo-toggle">
+          <summary class="resumo-summary">Ver resumo</summary>
+          <p class="card-resumo">{{ item.resumo }}</p>
+        </details>
+        {% endif %}
+
+        <div class="card-actions">
+          {% if item.audio %}
+          <div class="audio-player" role="region" aria-label="Player de áudio: {{ item.titulo }}">
+            <audio controls preload="none"
+                   aria-label="Áudio do resumo: {{ item.titulo }}"
+                   class="native-audio">
+              <source src="{{ url_for('serve_audio', filename=item.audio) }}"
+                      type="{{ item.audio|audio_mime }}">
+              Seu navegador não suporta áudio HTML5.
+              <a href="{{ url_for('serve_audio', filename=item.audio) }}" download>Baixar o arquivo de áudio</a>.
+            </audio>
+          </div>
+          {% else %}
+          <p class="no-audio" aria-label="Áudio indisponível para esta dissertação">
+            <svg aria-hidden="true" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+            Áudio não disponível
+          </p>
+          {% endif %}
+
+          {% if item.url_repositorio %}
+          <a href="{{ item.url_repositorio }}" target="_blank" rel="noopener noreferrer"
+             class="btn btn-outline" aria-label="Acessar trabalho completo no repositório (abre em nova aba)">
+            Acessar no Repositório ↗
+          </a>
+          {% endif %}
+        </div>
+
+        {% if is_admin %}
+        <div class="card-admin-actions">
+          <a href="{{ url_for('edit_item', tipo='dissertacoes', item_id=item.id) }}" class="btn btn-sm btn-edit">Editar</a>
+          <form method="POST" action="{{ url_for('delete_item', tipo='dissertacoes', item_id=item.id) }}"
+                onsubmit="return confirm('Remover esta dissertação?')">
+            <button type="submit" class="btn btn-sm btn-delete">Remover</button>
+          </form>
+        </div>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div class="empty-state" role="status">
+      <p>{% if query %}Nenhuma dissertação encontrada para "<strong>{{ query }}</strong>".{% else %}Nenhuma dissertação cadastrada ainda.{% endif %}</p>
+    </div>
+    {% endif %}
+  </section>
+  {% endif %}
+
+  {% if show_tes %}
+  <section class="collection-section" aria-labelledby="tes-heading">
+    <div class="section-header">
+      <h2 id="tes-heading" class="section-title">
+        <span class="section-badge tes-badge">T</span>
+        Teses
+        <span class="count-badge">{{ teses|length }}</span>
+      </h2>
+      <a href="https://repositorio.ufu.br/handle/123456789/5062"
+         target="_blank" rel="noopener noreferrer"
+         class="repo-link" aria-label="Acessar repositório completo de teses (abre em nova aba)">
+        Repositório UFU ↗
+      </a>
+    </div>
+
+    {% if teses %}
+    <ul class="cards-list" role="list" aria-label="Lista de teses">
+      {% for item in teses %}
+      <li class="card" id="tes-{{ item.id }}">
+        <div class="card-header">
+          <span class="card-tipo tes">Tese</span>
+          {% if item.ano %}<span class="card-ano">{{ item.ano }}</span>{% endif %}
+        </div>
+        <h3 class="card-title">{{ item.titulo }}</h3>
+        <p class="card-autor">{{ item.autor }}</p>
+        {% if item.resumo %}
+        <details class="card-resumo-toggle">
+          <summary class="resumo-summary">Ver resumo</summary>
+          <p class="card-resumo">{{ item.resumo }}</p>
+        </details>
+        {% endif %}
+
+        <div class="card-actions">
+          {% if item.audio %}
+          <div class="audio-player" role="region" aria-label="Player de áudio: {{ item.titulo }}">
+            <audio controls preload="none"
+                   aria-label="Áudio do resumo: {{ item.titulo }}"
+                   class="native-audio">
+              <source src="{{ url_for('serve_audio', filename=item.audio) }}"
+                      type="{{ item.audio|audio_mime }}">
+              Seu navegador não suporta áudio HTML5.
+              <a href="{{ url_for('serve_audio', filename=item.audio) }}" download>Baixar o arquivo de áudio</a>.
+            </audio>
+          </div>
+          {% else %}
+          <p class="no-audio">
+            <svg aria-hidden="true" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+            Áudio não disponível
+          </p>
+          {% endif %}
+
+          {% if item.url_repositorio %}
+          <a href="{{ item.url_repositorio }}" target="_blank" rel="noopener noreferrer"
+             class="btn btn-outline" aria-label="Acessar trabalho completo no repositório (abre em nova aba)">
+            Acessar no Repositório ↗
+          </a>
+          {% endif %}
+        </div>
+
+        {% if is_admin %}
+        <div class="card-admin-actions">
+          <a href="{{ url_for('edit_item', tipo='teses', item_id=item.id) }}" class="btn btn-sm btn-edit">Editar</a>
+          <form method="POST" action="{{ url_for('delete_item', tipo='teses', item_id=item.id) }}"
+                onsubmit="return confirm('Remover esta tese?')">
+            <button type="submit" class="btn btn-sm btn-delete">Remover</button>
+          </form>
+        </div>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div class="empty-state" role="status">
+      <p>{% if query %}Nenhuma tese encontrada para "<strong>{{ query }}</strong>".{% else %}Nenhuma tese cadastrada ainda.{% endif %}</p>
+    </div>
+    {% endif %}
+  </section>
+  {% endif %}
+
+</div>
+{% endblock %}

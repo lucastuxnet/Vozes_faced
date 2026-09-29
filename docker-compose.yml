@@ -1,0 +1,22 @@
+services:
+  ppged-audio:
+    build: .
+    container_name: ppged-audio
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - SECRET_KEY=troque-esta-chave-em-producao
+      - DATA_DIR=/app/data
+    volumes:
+      - audio_files:/app/static/audio
+      - app_data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  audio_files:
+  app_data:

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% set is_admin = true %}
+{% block title %}Gerenciar Usuários{% endblock %}
+
+{% block content %}
+<div class="form-container">
+  <h2 class="form-page-title">Gerenciar Usuários</h2>
+  <p class="form-subtitle">Apenas usuários cadastrados podem fazer login e gerenciar o repositório.</p>
+
+  <section class="users-list" aria-labelledby="users-heading">
+    <h3 id="users-heading">Usuários ativos</h3>
+    <ul class="user-items" role="list">
+      {% for user in users %}
+      <li class="user-item">
+        <span class="user-name">
+          <svg aria-hidden="true" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          </svg>
+          {{ user }}
+          {% if user == current %}<span class="badge badge-green">você</span>{% endif %}
+        </span>
+        {% if user != current %}
+        <form method="POST" action="{{ url_for('manage_users') }}"
+              onsubmit="return confirm('Remover o usuário {{ user }}?')">
+          <input type="hidden" name="action" value="delete">
+          <input type="hidden" name="del_username" value="{{ user }}">
+          <button type="submit" class="btn btn-sm btn-delete">Remover</button>
+        </form>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section class="add-user-section" aria-labelledby="add-user-heading">
+    <h3 id="add-user-heading">Adicionar novo usuário</h3>
+    <form method="POST" action="{{ url_for('manage_users') }}" class="item-form" novalidate>
+      <input type="hidden" name="action" value="add">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="new_username" class="form-label">Usuário</label>
+          <input type="text" id="new_username" name="new_username" class="form-input"
+                 required autocomplete="off" placeholder="Nome de usuário">
+        </div>
+        <div class="form-group">
+          <label for="new_password" class="form-label">Senha</label>
+          <input type="password" id="new_password" name="new_password" class="form-input"
+                 required autocomplete="new-password" placeholder="Senha segura">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Criar usuário</button>
+        <a href="{{ url_for('admin') }}" class="btn btn-outline">Voltar ao painel</a>
+      </div>
+    </form>
+  </section>
+</div>
+{% endblock %}

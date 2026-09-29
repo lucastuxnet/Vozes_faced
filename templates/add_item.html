@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% set is_admin = true %}
+{% block title %}Adicionar Dissertação ou Tese{% endblock %}
+
+{% block content %}
+<div class="form-container">
+  <h2 class="form-page-title">Adicionar Dissertação ou Tese</h2>
+
+  <form method="POST" action="{{ url_for('add_item') }}"
+        enctype="multipart/form-data" class="item-form" novalidate>
+
+    <div class="form-group">
+      <label for="tipo" class="form-label">Tipo <span class="required" aria-hidden="true">*</span></label>
+      <select id="tipo" name="tipo" class="form-input form-select" required aria-required="true">
+        <option value="">Selecione…</option>
+        <option value="dissertacoes">Dissertação</option>
+        <option value="teses">Tese</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="titulo" class="form-label">Título <span class="required" aria-hidden="true">*</span></label>
+      <input type="text" id="titulo" name="titulo" class="form-input"
+             required aria-required="true" placeholder="Título completo do trabalho">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="autor" class="form-label">Autor(a) <span class="required" aria-hidden="true">*</span></label>
+        <input type="text" id="autor" name="autor" class="form-input"
+               required aria-required="true" placeholder="Nome completo do autor">
+      </div>
+      <div class="form-group form-group-sm">
+        <label for="ano" class="form-label">Ano</label>
+        <input type="text" id="ano" name="ano" class="form-input"
+               maxlength="4" placeholder="Ex: 2023">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="resumo" class="form-label">Resumo / Abstract</label>
+      <textarea id="resumo" name="resumo" class="form-input form-textarea"
+                rows="5" placeholder="Cole aqui o resumo do trabalho…"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="url_repositorio" class="form-label">URL no Repositório UFU</label>
+      <input type="url" id="url_repositorio" name="url_repositorio" class="form-input"
+             placeholder="https://repositorio.ufu.br/handle/…">
+    </div>
+
+    <div class="form-group">
+      <label for="audio" class="form-label">Arquivo de Áudio do Resumo</label>
+      <div class="file-input-wrapper">
+        <input type="file" id="audio" name="audio" class="form-file-input"
+               accept=".mp3,.wav,.ogg,.oga,.opus,.m4a,.aac,audio/*"
+               aria-describedby="audio-hint">
+        <span class="file-input-label" aria-hidden="true">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+          </svg>
+          Selecionar arquivo de áudio
+        </span>
+      </div>
+      <p id="audio-hint" class="form-hint">Formatos aceitos: MP3, WAV, OGG, OPUS, M4A, AAC · Tamanho máximo: 50 MB</p>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Salvar</button>
+      <a href="{{ url_for('admin') }}" class="btn btn-outline">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

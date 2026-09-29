@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% set is_admin = true %}
+{% block title %}Editar – {{ item.titulo }}{% endblock %}
+
+{% block content %}
+<div class="form-container">
+  <h2 class="form-page-title">Editar {{ 'Dissertação' if tipo == 'dissertacoes' else 'Tese' }}</h2>
+
+  <form method="POST" action="{{ url_for('edit_item', tipo=tipo, item_id=item.id) }}"
+        enctype="multipart/form-data" class="item-form" novalidate>
+
+    <div class="form-group">
+      <label for="titulo" class="form-label">Título <span class="required" aria-hidden="true">*</span></label>
+      <input type="text" id="titulo" name="titulo" class="form-input"
+             required value="{{ item.titulo }}">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="autor" class="form-label">Autor(a) <span class="required" aria-hidden="true">*</span></label>
+        <input type="text" id="autor" name="autor" class="form-input"
+               required value="{{ item.autor }}">
+      </div>
+      <div class="form-group form-group-sm">
+        <label for="ano" class="form-label">Ano</label>
+        <input type="text" id="ano" name="ano" class="form-input"
+               maxlength="4" value="{{ item.ano or '' }}">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="resumo" class="form-label">Resumo / Abstract</label>
+      <textarea id="resumo" name="resumo" class="form-input form-textarea" rows="5">{{ item.resumo or '' }}</textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="url_repositorio" class="form-label">URL no Repositório UFU</label>
+      <input type="url" id="url_repositorio" name="url_repositorio" class="form-input"
+             value="{{ item.url_repositorio or '' }}">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Áudio atual</label>
+      {% if item.audio %}
+      <div class="current-audio">
+        <audio controls class="native-audio" aria-label="Áudio atual do resumo">
+          <source src="{{ url_for('serve_audio', filename=item.audio) }}"
+                  type="{{ item.audio|audio_mime }}">
+        </audio>
+        <p class="form-hint">Para substituir, selecione um novo arquivo abaixo.</p>
+      </div>
+      {% else %}
+      <p class="form-hint">Nenhum áudio cadastrado ainda.</p>
+      {% endif %}
+
+      <label for="audio" class="form-label" style="margin-top:0.75rem">{{ 'Substituir áudio' if item.audio else 'Adicionar áudio' }}</label>
+      <div class="file-input-wrapper">
+        <input type="file" id="audio" name="audio" class="form-file-input"
+               accept=".mp3,.wav,.ogg,.oga,.opus,.m4a,.aac,audio/*">
+        <span class="file-input-label" aria-hidden="true">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+          </svg>
+          Selecionar arquivo de áudio
+        </span>
+      </div>
+      <p class="form-hint">Formatos aceitos: MP3, WAV, OGG, OPUS, M4A, AAC · Máximo: 50 MB</p>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Salvar alterações</button>
+      <a href="{{ url_for('admin') }}" class="btn btn-outline">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% set is_admin = true %}
+{% block title %}Painel Administrativo – PPGED{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+  <div class="admin-header">
+    <div>
+      <h2>Painel Administrativo</h2>
+      <p class="admin-welcome">Olá, <strong>{{ username }}</strong>. Gerencie as dissertações e teses do repositório.</p>
+    </div>
+    <div class="admin-header-actions">
+      <a href="{{ url_for('add_item') }}" class="btn btn-primary">+ Adicionar novo</a>
+      <a href="{{ url_for('manage_users') }}" class="btn btn-outline">Gerenciar usuários</a>
+    </div>
+  </div>
+
+  <div class="admin-stats">
+    <div class="stat-card">
+      <span class="stat-num">{{ dissertacoes|length }}</span>
+      <span class="stat-label">Dissertações</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">{{ teses|length }}</span>
+      <span class="stat-label">Teses</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num">{{ (dissertacoes + teses) | selectattr('audio') | list | length }}</span>
+      <span class="stat-label">Com áudio</span>
+    </div>
+  </div>
+
+  <section class="admin-section" aria-labelledby="admin-dis-heading">
+    <h3 id="admin-dis-heading">Dissertações</h3>
+    {% if dissertacoes %}
+    <div class="admin-table-wrap">
+      <table class="admin-table" aria-label="Tabela de dissertações">
+        <thead>
+          <tr>
+            <th scope="col">Título</th>
+            <th scope="col">Autor</th>
+            <th scope="col">Ano</th>
+            <th scope="col">Áudio</th>
+            <th scope="col">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in dissertacoes %}
+          <tr>
+            <td class="td-title">{{ item.titulo }}</td>
+            <td>{{ item.autor }}</td>
+            <td>{{ item.ano or '–' }}</td>
+            <td class="td-audio">
+              {% if item.audio %}
+                <span class="badge badge-green" aria-label="Áudio disponível">✓ Sim</span>
+              {% else %}
+                <span class="badge badge-gray" aria-label="Áudio não disponível">✗ Não</span>
+              {% endif %}
+            </td>
+            <td class="td-actions">
+              <a href="{{ url_for('edit_item', tipo='dissertacoes', item_id=item.id) }}" class="btn btn-sm btn-edit">Editar</a>
+              <form method="POST" action="{{ url_for('delete_item', tipo='dissertacoes', item_id=item.id) }}"
+                    style="display:inline" onsubmit="return confirm('Remover esta dissertação?')">
+                <button type="submit" class="btn btn-sm btn-delete">Remover</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="empty-state">Nenhuma dissertação cadastrada. <a href="{{ url_for('add_item') }}">Adicionar agora</a>.</p>
+    {% endif %}
+  </section>
+
+  <section class="admin-section" aria-labelledby="admin-tes-heading">
+    <h3 id="admin-tes-heading">Teses</h3>
+    {% if teses %}
+    <div class="admin-table-wrap">
+      <table class="admin-table" aria-label="Tabela de teses">
+        <thead>
+          <tr>
+            <th scope="col">Título</th>
+            <th scope="col">Autor</th>
+            <th scope="col">Ano</th>
+            <th scope="col">Áudio</th>
+            <th scope="col">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in teses %}
+          <tr>
+            <td class="td-title">{{ item.titulo }}</td>
+            <td>{{ item.autor }}</td>
+            <td>{{ item.ano or '–' }}</td>
+            <td class="td-audio">
+              {% if item.audio %}
+                <span class="badge badge-green">✓ Sim</span>
+              {% else %}
+                <span class="badge badge-gray">✗ Não</span>
+              {% endif %}
+            </td>
+            <td class="td-actions">
+              <a href="{{ url_for('edit_item', tipo='teses', item_id=item.id) }}" class="btn btn-sm btn-edit">Editar</a>
+              <form method="POST" action="{{ url_for('delete_item', tipo='teses', item_id=item.id) }}"
+                    style="display:inline" onsubmit="return confirm('Remover esta tese?')">
+                <button type="submit" class="btn btn-sm btn-delete">Remover</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="empty-state">Nenhuma tese cadastrada. <a href="{{ url_for('add_item') }}">Adicionar agora</a>.</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}
