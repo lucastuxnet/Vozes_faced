@@ -1,4 +1,4 @@
-# Repositório Acessível – PPGED/FACED/UFU
+# Repositório Acessível – PPGED/FACED/UFU & PPGCO/FACOM/UFU
 
 Plataforma web acessível para pessoas com deficiência visual acessarem áudios dos resumos
 de dissertações e teses do PPGED/UFU.
